@@ -1,0 +1,62 @@
+/* Okvir input polja */
+.input-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+/* Labela za input polje */
+.input-field label {
+  margin-bottom: 5px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* Sam input */
+.input-field input {
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  transition: border 0.2s;
+}
+
+/* Focus stanje inputa */
+.input-field input:focus {
+  border-color: #007bff;
+}
+
+/* Dugme */
+.custom-button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  font-size: 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+/* Hover efekat dugmeta */
+.custom-button:hover {
+  background-color: #0056b3;
+}
+
+/* Stil za LoginPage wrapper */
+.login-page {
+  width: 350px;
+  margin: 50px auto;
+  padding: 30px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  background-color: #f9f9f9;
+}
+
+/* Naslov login forme */
+.login-page h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
