@@ -2,6 +2,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import Button from '../components/Button';
 import { useState } from 'react';
+import Breadcrumbs from '../components/Breadcrumbs';
 
 function PodcastDetailsPage() {
 
@@ -19,8 +20,15 @@ function PodcastDetailsPage() {
     setCurrentEpisode(episode);
   };
 
+  const paths = [
+    { label: 'Početna', link: '/' },
+    { label: 'Podkasti', link: '/podcasts' },
+    { label: `Podkast #${id}` }
+  ];
+
   return (
     <div className="podcast-details-page">
+      <Breadcrumbs paths={paths} />
       <h1>Detalji podkasta #{id}</h1>
 
       <div className="episodes-list">
