@@ -1,87 +1,65 @@
 import React from 'react';
 import PodcastCard from '../components/PodcastCard';
 import { useNavigate } from 'react-router-dom';
-import usePodcasts from '../hooks/usePodcasts';
+import usePagination from '../hooks/usePagination';
+import useFilters from '../hooks/useFilters';
 
 function PodcastsPage() {
   const navigate = useNavigate();
 
-  const podcasts = [
-    { 
-      id: 1, 
-      title: 'Tech Talks', 
-      author: 'Marko Marković',
-      description: 'Razgovori o tehnologiji', 
-      coverUrl: 'https://via.placeholder.com/150',
-      episodes: [
-        { id: 1, title: 'Uvod u tehnologiju' },
-        { id: 2, title: 'Napredni JavaScript' }
-      ]
-    },
-    { 
-      id: 2, 
-      title: 'Health Matters', 
-      author: 'Jelena Jovanović',
-      description: 'Zdravlje i fitnes', 
-      coverUrl: 'https://via.placeholder.com/150',
-      episodes: [
-        { id: 1, title: 'Zdrava ishrana' },
-        { id: 2, title: 'Vežbanje kod kuće' }
-      ]
-    },
-  ];
+  const { filters, setFilter, clearFilters } = useFilters({ query: '', filterBy: 'title' });
+  const { data: podcasts, loading, currentPage, totalPages, goToPage, fetchPage } =
+    usePagination('/podcasts', 1, 5);
 
-  const {
-    searchTerm,
-    setSearchTerm,
-    paginatedPodcasts,
-    currentPage,
-    setCurrentPage,
-    totalPages
-  } = usePodcasts(podcasts);
+  const handleSearch = () => {
+    // mapiranje filtera prema izboru korisnika
+    const searchParam = filters.filterBy === 'title' ? { title: filters.query } : { user_name: filters.query };
+    fetchPage(1, searchParam);
+  };
 
-  const handleViewDetails = (id) => {
-    navigate(`/podcasts/${id}`);
+  const handleClear = () => {
+    clearFilters();
+    fetchPage(1, {});
   };
 
   return (
     <div className="podcasts-page">
       <h1>Podkasti</h1>
-      <input
-        type="text"
-        placeholder="Pretraži podkaste, autore ili epizode..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
 
-      <div className="podcast-list">
-        {paginatedPodcasts.map(podcast => (
-          <PodcastCard
-            key={podcast.id}
-            podcast={podcast}
-            onViewDetails={handleViewDetails}
-          />
-        ))}
+      <div style={{ marginBottom: '10px' }}>
+        <input
+          type="text"
+          placeholder={filters.filterBy === 'title' ? "Pretraži po nazivu" : "Pretraži po autoru"}
+          value={filters.query}
+          onChange={(e) => setFilter('query', e.target.value)}
+          style={{ marginRight: '10px' }}
+        />
+
+        <select value={filters.filterBy} onChange={(e) => setFilter('filterBy', e.target.value)}>
+          <option value="title">Naziv podkasta</option>
+          <option value="user_name">Autor</option>
+        </select>
+
+        <button onClick={handleSearch} style={{ marginLeft: '10px' }}>Pretraži</button>
+        <button onClick={handleClear} style={{ marginLeft: '5px' }}>Resetuj</button>
       </div>
 
+      {loading ? <p>Učitavanje...</p> : (
+        <div className="podcast-list">
+          {podcasts.map(podcast => (
+            <PodcastCard
+              key={podcast.id}
+              podcast={podcast}
+              onViewDetails={(id) => navigate(`/podcasts/${id}`)}
+            />
+          ))}
+        </div>
+      )}
+
       <div className="pagination">
-        <button 
-          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-        >
-           Prethodna
-        </button>
-
-        <span style={{ margin: '0 10px' }}>
-          Strana {currentPage} od {totalPages}
-        </span>
-
-        <button 
-          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-          disabled={currentPage === totalPages}
-        >
-          Sledeća
-        </button>
+        <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>Prethodna</button>
+        <span>Strana {currentPage} od {totalPages}</span>
+        <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages}>Sledeća</button>
       </div>
     </div>
   );
