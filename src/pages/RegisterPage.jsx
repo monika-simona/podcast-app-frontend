@@ -1,37 +1,35 @@
 import React, { useState } from 'react';
 import InputField from '../components/InputField';
 import Button from '../components/Button';
+import api from '../api';
+import { useNavigate } from 'react-router-dom';
+
 
 function RegisterPage() {
-  const [name, setName] = useState('');         // ime korisnika
-  const [email, setEmail] = useState('');       // email
-  const [password, setPassword] = useState(''); // lozinka
-  const [confirmPassword, setConfirmPassword] = useState(''); // potvrda lozinke
-  const [message, setMessage] = useState('');
+  const [name, setName] = useState('');         
+  const [email, setEmail] = useState('');       
+  const [password, setPassword] = useState(''); 
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [role, setRole] = useState('user');
+  
+  const navigate = useNavigate();
 
   const handleRegister = async () => {
-    if (password !== confirmPassword) {
-      setMessage("⚠️ Lozinke se ne poklapaju!");
-      return;
-    }
 
     try {
-      const response = await fetch("http://localhost:8000/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+
+      await api.post('/register', {
+        name,
+        email,
+        password,
+        password_confirmation: confirmPassword,
+        role, // uzima vrednost iz select polja
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        localStorage.setItem("token", data.token); // odmah ulogujemo usera
-        setMessage("✅ Uspešna registracija!");
-      } else {
-        setMessage("⚠️ Greška: " + (data.message || "Proverite podatke"));
-      }
+      navigate('/login');
+      
     } catch (err) {
-      setMessage("⚠️ Došlo je do greške: " + err.message);
+      console.error(err.response?.data || err);
     }
   };
 
@@ -66,9 +64,15 @@ function RegisterPage() {
         onChange={(e) => setConfirmPassword(e.target.value)}
         placeholder="Ponovite lozinku"
       />
-      <Button onClick={handleRegister}>Registruj se</Button>
+      <label>
+        Izaberite ulogu:
+        <select value={role} onChange={e => setRole(e.target.value)}>
+          <option value="user">Korisnik</option>
+          <option value="author">Autor</option>
+        </select>
+      </label>
 
-      {message && <p>{message}</p>}
+      <Button onClick={handleRegister}>Registruj se</Button>
     </div>
   );
 }
