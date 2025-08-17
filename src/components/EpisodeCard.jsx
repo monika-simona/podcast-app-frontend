@@ -2,17 +2,24 @@ import React from 'react';
 import Button from './Button';
 import { useAudioPlayer } from '../context/AudioPlayerContext';
 
-function EpisodeCard({ episode }) {
+function EpisodeCard({ episode, onPlay }) {
   const { playEpisode } = useAudioPlayer();
 
   return (
     <div className="episode-card">
       <h4>{episode.title}</h4>
-      <p>Trajanje: {episode.duration}</p>
-      <p>Datum: {episode.date}</p>
       <p>{episode.description}</p>
+      <p>{episode.duration}</p>
+      <p>{episode.date}</p>
 
-      <Button onClick={() => playEpisode(episode)}>Play</Button>
+      {episode.audio_path && (
+        <audio controls style={{ width: '100%' }}>
+          <source src={episode.audio_path} type="audio/mpeg" />
+          Vaš browser ne podržava audio plejere.
+        </audio>
+      )}
+
+      <Button onClick={() => onPlay(episode)}>Play</Button>
     </div>
   );
 }
