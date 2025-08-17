@@ -1,37 +1,66 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../api";
 
 function Navbar() {
+  const user = JSON.parse(localStorage.getItem("user"));
+  const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user")); // čuvamo user-a u localStorage
-  const token = localStorage.getItem("token");
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
+  const handleLogout = async () =>  {
+    try {
+      await api.post('/logout');
+    } catch (err) {
+    console.error(err);
+    }
+    localStorage.removeItem("access_token");
     localStorage.removeItem("user");
-    navigate("/login");
+    navigate('/login');
   };
 
   return (
     <nav className="navbar">
       <div className="navbar-left">
-        <Link to="/">Podcast</Link>
+        <Link to="/podcasts">Podcast</Link>
       </div>
 
       <div className="navbar-right">
-        {!token ? (
+        {!user ? (
           <>
             <Link to="/login">Prijava</Link>
             <Link to="/register">Registracija</Link>
           </>
         ) : (
           <div className="user-menu">
-            <span>👤 {user?.name || "Moj nalog"}</span>
-            <div className="dropdown">
-              <button onClick={() => navigate("/profile")}>Moj profil</button>
-              <button onClick={() => navigate("/my-podcasts")}>Moji podkasti</button>
-              <button onClick={handleLogout}>Odjava</button>
+            
+            {/*korisnikove informacije*/}
+            <div className="user-info" onClick={() => setMenuOpen(!menuOpen)}>
+              <span>{user.name}</span>
             </div>
+            {menuOpen && (
+              <div className="dropdown">
+                <Link to="/profile">Moj profil</Link>
+
+                {/* Ako je autor */}
+                {user.role === 'author' && (
+                  <>
+                    <Link to="/my-podcasts">Moji podkasti</Link>
+                    <Link to="/upload">Dodaj epizodu</Link>
+                  </>
+                )}
+
+                {/* Ako je admin */}
+                {user.role === 'admin' && (
+                  <>
+                    <Link to="/admin/users">Upravljanje korisnicima</Link>
+                    <Link to="/admin/podcasts">Kontrola podkasta</Link>
+                  </>
+                )}
+                <button onClick={handleLogout}>Odjavi se</button>
+              </div>
+            )}
           </div>
         )}
       </div>
