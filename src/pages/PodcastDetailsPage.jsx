@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom';
 import Button from '../components/Button';
 import { useState } from 'react';
 import Breadcrumbs from '../components/Breadcrumbs';
+import EpisodeCard from '../components/EpisodeCard';
+
 
 function PodcastDetailsPage() {
 
@@ -17,6 +19,11 @@ function PodcastDetailsPage() {
   ];
 
   const handlePlayEpisode = (episode) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Morate biti ulogovani da biste slušali epizodu.");
+      return;
+    }
     setCurrentEpisode(episode);
   };
 
@@ -34,16 +41,13 @@ function PodcastDetailsPage() {
       <div className="episodes-list">
         <h2>Epizode:</h2>
         {episodes.map(ep => (
-          <div key={ep.id} className="episode-item">
-            <p>{ep.title}</p>
-            <Button onClick={() => handlePlayEpisode(ep)}>Slušaj</Button>
-          </div>
+          <EpisodeCard key={ep.id} episode={ep} onPlay={handlePlayEpisode} />
         ))}
       </div>
 
       {currentEpisode && (
         <div className="audio-player">
-          <h3>Sada slušaš: {currentEpisode.title}</h3>
+          <h3>{currentEpisode.title}</h3>
           <audio controls autoPlay src={currentEpisode.audioUrl}></audio>
         </div>
       )}
