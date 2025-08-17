@@ -132,3 +132,18 @@
 .breadcrumbs span {
   color: #555;
 }
+
+.audio-player-popup {
+  position: fixed;
+  top: 20px; /* početna pozicija */
+  left: 20px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  cursor: move;
+  z-index: 9999;
+  width: 250px;
+  user-select: none; /* sprečava selektovanje teksta dok se pomera */
+}
