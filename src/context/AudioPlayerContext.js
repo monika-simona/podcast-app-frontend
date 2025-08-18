@@ -8,7 +8,10 @@ export const AudioPlayerProvider = ({ children }) => {
   const [currentEpisode, setCurrentEpisode] = useState(null);
 
   const playEpisode = (episode) => {
-    setCurrentEpisode(episode);
+    setCurrentEpisode({
+      ...episode,
+      audioUrl: `http://127.0.0.1:8000/api/episodes/${episode.id}/play`
+    });
   };
 
   const stopEpisode = () => {
@@ -22,5 +25,4 @@ export const AudioPlayerProvider = ({ children }) => {
   );
 };
 
-// Hook za lakše korišćenje
 export const useAudioPlayer = () => useContext(AudioPlayerContext);

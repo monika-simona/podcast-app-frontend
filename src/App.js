@@ -35,6 +35,7 @@ function App() {
 
         <Route path="/my-podcasts" element={<MyPodcastsPage />} />
 
+
         {/* Ruta za nepostojeće stranice */}
         <Route path="*" element={<h2>404 – Stranica nije pronađena</h2>} />
       </Routes>

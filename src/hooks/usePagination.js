@@ -10,12 +10,26 @@ function usePagination(endpoint, initialPage = 1, itemsPerPage = 5) {
 
   const fetchPage = async (page = currentPage, params = {}) => {
     setLoading(true);
+    setError(null);
+
     try {
-      const response = await api.get(endpoint, { params: { ...params, page, per_page: itemsPerPage } });
-      setData(response.data.data || response.data); // Laravel paginate vraća data
-      setTotalPages(response.data.last_page || 1);
+      const response = await api.get(endpoint, {
+        params: { ...params, page, per_page: itemsPerPage },
+      });
+
+      // Laravel paginate response
+      if (response.data.data) {
+        setData(response.data.data);
+        setTotalPages(response.data.last_page || 1);
+      } else {
+        // Ako nije paginate, nego obican array
+        setData(response.data);
+        setTotalPages(1);
+      }
+
       setCurrentPage(page);
     } catch (err) {
+      console.error("Greška u usePagination:", err);
       setError(err);
     } finally {
       setLoading(false);
@@ -23,12 +37,12 @@ function usePagination(endpoint, initialPage = 1, itemsPerPage = 5) {
   };
 
   useEffect(() => {
-    fetchPage(currentPage);
-  }, [currentPage]);
+    fetchPage(initialPage);
+  }, [endpoint]); // ako endpoint promeni, da se refetchuje
 
   const goToPage = (page) => {
     if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
+      fetchPage(page);
     }
   };
 
@@ -39,7 +53,7 @@ function usePagination(endpoint, initialPage = 1, itemsPerPage = 5) {
     currentPage,
     totalPages,
     goToPage,
-    fetchPage
+    fetchPage,
   };
 }
 

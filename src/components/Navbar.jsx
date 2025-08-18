@@ -47,7 +47,6 @@ function Navbar() {
                 {user.role === 'author' && (
                   <>
                     <Link to="/my-podcasts">Moji podkasti</Link>
-                    <Link to="/upload">Dodaj epizodu</Link>
                   </>
                 )}
 
