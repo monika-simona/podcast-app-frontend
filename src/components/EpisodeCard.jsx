@@ -1,25 +1,35 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Button from './Button';
 import { useAudioPlayer } from '../context/AudioPlayerContext';
+import EditEpisodeForm from './EditEpisodeForm';
 
-function EpisodeCard({ episode, onPlay }) {
+function EpisodeCard({ episode, canManage, onDelete, setEpisodes }) {
   const { playEpisode } = useAudioPlayer();
+  const [showEdit, setShowEdit] = useState(false);
 
   return (
     <div className="episode-card">
       <h4>{episode.title}</h4>
-      <p>{episode.description}</p>
-      <p>{episode.duration}</p>
-      <p>{episode.date}</p>
+      <p>Details: {episode.description}</p>
+      <p>Duration: {episode.duration} min</p>
+      <p>{episode.release_date}</p>
 
-      {episode.audio_path && (
-        <audio controls style={{ width: '100%' }}>
-          <source src={episode.audio_path} type="audio/mpeg" />
-          Vaš browser ne podržava audio plejere.
-        </audio>
+      <Button onClick={() => playEpisode(episode)}>Play</Button>
+      
+      {canManage && (
+        <div style={{ marginTop: "10px" }}>
+          <Button onClick={() => setShowEdit(true)}>Edit</Button>
+          <Button onClick={onDelete}>Delete</Button>
+        </div>
       )}
 
-      <Button onClick={() => onPlay(episode)}>Play</Button>
+      {showEdit && (
+        <EditEpisodeForm
+          episode={episode}
+          setEpisodes={setEpisodes}
+          onClose={() => setShowEdit(false)}
+        />
+      )}
     </div>
   );
 }
