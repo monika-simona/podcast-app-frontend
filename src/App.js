@@ -8,11 +8,13 @@ import { AudioPlayerProvider } from './context/AudioPlayerContext';
 import AudioPlayerPopup from './components/AudioPlayerPopup';
 import RegisterPage from './pages/RegisterPage';
 import Navbar from "./components/Navbar";
-
+import MyPodcastsPage from './pages/MyPodcastsPage';
+import { AuthProvider } from './context/AuthContext';
 
 
 function App() {
   return (
+  <AuthProvider>
    <AudioPlayerProvider>
     <BrowserRouter>
      <Navbar />
@@ -31,12 +33,15 @@ function App() {
         {/* Detalji podkasta */}
         <Route path="/podcasts/:id" element={<PodcastDetailsPage />} />
 
+        <Route path="/my-podcasts" element={<MyPodcastsPage />} />
+
         {/* Ruta za nepostojeće stranice */}
         <Route path="*" element={<h2>404 – Stranica nije pronađena</h2>} />
       </Routes>
     </BrowserRouter>
     <AudioPlayerPopup />
    </AudioPlayerProvider> 
+  </AuthProvider>
   );
 }
 
