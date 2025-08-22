@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../api";
 
 function Navbar() {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = JSON.parse(sessionStorage.getItem("user"));
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -15,8 +15,8 @@ function Navbar() {
     } catch (err) {
     console.error(err);
     }
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("user");
+    sessionStorage.removeItem("access_token");
+    sessionStorage.removeItem("user");
     navigate('/login');
   };
 
@@ -54,7 +54,6 @@ function Navbar() {
                 {user.role === 'admin' && (
                   <>
                     <Link to="/admin/users">Upravljanje korisnicima</Link>
-                    <Link to="/admin/podcasts">Kontrola podkasta</Link>
                   </>
                 )}
                 <button onClick={handleLogout}>Odjavi se</button>
