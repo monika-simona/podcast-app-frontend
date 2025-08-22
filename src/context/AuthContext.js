@@ -7,18 +7,18 @@ export function AuthProvider({ children }) {
 
   // simulacija – kasnije ovde ide API login
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem('user'));
+    const storedUser = JSON.parse(sessionStorage.getItem('user'));
     if (storedUser) setUser(storedUser);
   }, []);
 
   const login = (userData) => {
     setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
+    sessionStorage.setItem('user', JSON.stringify(userData));
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('user');
+    sessionStorage.removeItem('user');
   };
 
   return (

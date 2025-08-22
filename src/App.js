@@ -10,7 +10,8 @@ import RegisterPage from './pages/RegisterPage';
 import Navbar from "./components/Navbar";
 import MyPodcastsPage from './pages/MyPodcastsPage';
 import { AuthProvider } from './context/AuthContext';
-
+import UserProfilePage from './pages/UserProfilePage';
+import AdminUserPage from './pages/AdminUsersPage';
 
 function App() {
   return (
@@ -34,6 +35,10 @@ function App() {
         <Route path="/podcasts/:id" element={<PodcastDetailsPage />} />
 
         <Route path="/my-podcasts" element={<MyPodcastsPage />} />
+
+        <Route path="/profile" element={<UserProfilePage />} />
+
+        <Route path="/admin/users" element={<AdminUserPage />} />
 
 
         {/* Ruta za nepostojeće stranice */}

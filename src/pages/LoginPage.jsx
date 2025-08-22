@@ -24,8 +24,8 @@ function LoginPage() {
 
       //cuvanje podataka
 
-      localStorage.setItem('access_token', access_token);
-      localStorage.setItem('user', JSON.stringify(user));
+      sessionStorage.setItem('access_token', access_token);
+      sessionStorage.setItem('user', JSON.stringify(user));
 
       navigate('/podcasts');
 
