@@ -14,6 +14,7 @@ import UserProfilePage from './pages/UserProfilePage';
 import AdminUserPage from './pages/AdminUsersPage';
 import ITunesSearchPage from './pages/ITunesSearchPage';
 import NewsPage from './pages/NewsPage';
+import EpisodesPage from './pages/EpisodesPage';
 
 
 
@@ -47,6 +48,8 @@ function App() {
         <Route path="/itunes-search" element={<ITunesSearchPage />} />
         
         <Route path="/news" element={<NewsPage />} />
+
+        <Route path="/episodes" element={<EpisodesPage />} />
 
 
         {/* Ruta za nepostojeće stranice */}
