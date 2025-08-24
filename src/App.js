@@ -12,6 +12,10 @@ import MyPodcastsPage from './pages/MyPodcastsPage';
 import { AuthProvider } from './context/AuthContext';
 import UserProfilePage from './pages/UserProfilePage';
 import AdminUserPage from './pages/AdminUsersPage';
+import ITunesSearchPage from './pages/ITunesSearchPage';
+import NewsPage from './pages/NewsPage';
+
+
 
 function App() {
   return (
@@ -39,6 +43,10 @@ function App() {
         <Route path="/profile" element={<UserProfilePage />} />
 
         <Route path="/admin/users" element={<AdminUserPage />} />
+        
+        <Route path="/itunes-search" element={<ITunesSearchPage />} />
+        
+        <Route path="/news" element={<NewsPage />} />
 
 
         {/* Ruta za nepostojeće stranice */}

@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
 import Breadcrumbs from '../components/Breadcrumbs';
 import EpisodeCard from '../components/EpisodeCard';
@@ -10,35 +10,31 @@ import { AuthContext } from '../context/AuthContext';
 
 function PodcastDetailsPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { user } = useContext(AuthContext);
+  const { playEpisode } = useAudioPlayer();
 
   const [podcast, setPodcast] = useState(null);
   const [episodes, setEpisodes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const { playEpisode } = useAudioPlayer();
 
-  const fetchEpisodes = async () => {
-    const cacheKey = `podcast_${id}_episodes`;
-    const cached = sessionStorage.getItem(cacheKey);
-
-    if (cached) {
-      setEpisodes(JSON.parse(cached));
-      setLoading(false);
-      return;
-    }
+  const fetchPodcastDetails = async () => {
+    setLoading(true);
+    setError(null);
 
     try {
-      setLoading(true);
-      setError(null);
+      const [podcastRes, episodesRes] = await Promise.all([
+        api.get(`/podcasts/${id}`),
+        api.get(`/podcasts/${id}/episodes`)
+      ]);
 
-      const podcastRes = await api.get(`/podcasts/${id}`);
-      const episodesRes = await api.get(`/podcasts/${id}/episodes`);
+      // Ako backend vraća paginaciju
+      const episodesData = episodesRes.data.data || episodesRes.data;
 
       setPodcast(podcastRes.data);
-      setEpisodes(episodesRes.data);
-      sessionStorage.setItem(cacheKey, JSON.stringify(episodesRes.data));
+      setEpisodes(episodesData);
     } catch (err) {
       console.error("Greška pri učitavanju podataka:", err);
       setError("Neuspešno učitavanje podataka. Pokušajte ponovo.");
@@ -47,7 +43,9 @@ function PodcastDetailsPage() {
     }
   };
 
-  useEffect(() => { fetchEpisodes(); }, [id]);
+  useEffect(() => {
+    fetchPodcastDetails();
+  }, [id]);
 
   const canManage = user && podcast && (user.role === 'admin' || user.id === podcast.user_id);
 
@@ -58,7 +56,6 @@ function PodcastDetailsPage() {
       await api.delete(`/episodes/${episodeId}`);
       const updatedEpisodes = episodes.filter(ep => ep.id !== episodeId);
       setEpisodes(updatedEpisodes);
-      sessionStorage.setItem(`podcast_${id}_episodes`, JSON.stringify(updatedEpisodes));
     } catch (err) {
       console.error(err);
       alert("Greška prilikom brisanja epizode.");
@@ -72,6 +69,10 @@ function PodcastDetailsPage() {
       return;
     }
     playEpisode(episode);
+  };
+
+  const handleGoToEpisode = (episode) => {
+    navigate(`/episodes/${episode.id}`, { state: { podcast } });
   };
 
   const paths = [
@@ -101,10 +102,7 @@ function PodcastDetailsPage() {
               {showForm && (
                 <AddEpisodeForm
                   podcastId={id}
-                  setEpisodes={(newEpisodes) => {
-                    setEpisodes(newEpisodes);
-                    sessionStorage.setItem(`podcast_${id}_episodes`, JSON.stringify(newEpisodes));
-                  }}
+                  setEpisodes={setEpisodes}
                   onClose={() => setShowForm(false)}
                 />
               )}
@@ -120,10 +118,8 @@ function PodcastDetailsPage() {
                   episode={ep}
                   canManage={canManage}
                   onDelete={() => handleDeleteEpisode(ep.id)}
-                  setEpisodes={(updated) => {
-                    setEpisodes(updated);
-                    sessionStorage.setItem(`podcast_${id}_episodes`, JSON.stringify(updated));
-                  }}
+                  onPlay={() => handlePlayEpisode(ep)}
+                  onView={() => handleGoToEpisode(ep)}
                 />
               ))
             ) : (
