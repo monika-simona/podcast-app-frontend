@@ -7,10 +7,9 @@ function useFilters(initialFilters = {}) {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 
-  const clearFilters = () => setFilters({});
+  const clearFilters = () => setFilters(initialFilters);
 
   return { filters, setFilter, clearFilters };
 }
 
 export default useFilters;
-

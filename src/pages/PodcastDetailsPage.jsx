@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import Button from '../components/Button';
 import Breadcrumbs from '../components/Breadcrumbs';
@@ -14,22 +14,40 @@ function PodcastDetailsPage() {
 
   const [podcast, setPodcast] = useState(null);
   const [episodes, setEpisodes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const { playEpisode } = useAudioPlayer(); 
+  const { playEpisode } = useAudioPlayer();
 
-  const fetchData = async () => {
+  const fetchEpisodes = async () => {
+    const cacheKey = `podcast_${id}_episodes`;
+    const cached = sessionStorage.getItem(cacheKey);
+
+    if (cached) {
+      setEpisodes(JSON.parse(cached));
+      setLoading(false);
+      return;
+    }
+
     try {
+      setLoading(true);
+      setError(null);
+
       const podcastRes = await api.get(`/podcasts/${id}`);
       const episodesRes = await api.get(`/podcasts/${id}/episodes`);
 
       setPodcast(podcastRes.data);
       setEpisodes(episodesRes.data);
-    } catch (error) {
-      console.error("Greška pri učitavanju podataka:", error);
+      sessionStorage.setItem(cacheKey, JSON.stringify(episodesRes.data));
+    } catch (err) {
+      console.error("Greška pri učitavanju podataka:", err);
+      setError("Neuspešno učitavanje podataka. Pokušajte ponovo.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  useEffect(() => { fetchData(); }, [id]);
+  useEffect(() => { fetchEpisodes(); }, [id]);
 
   const canManage = user && podcast && (user.role === 'admin' || user.id === podcast.user_id);
 
@@ -38,7 +56,9 @@ function PodcastDetailsPage() {
 
     try {
       await api.delete(`/episodes/${episodeId}`);
-      setEpisodes(prev => prev.filter(ep => ep.id !== episodeId));
+      const updatedEpisodes = episodes.filter(ep => ep.id !== episodeId);
+      setEpisodes(updatedEpisodes);
+      sessionStorage.setItem(`podcast_${id}_episodes`, JSON.stringify(updatedEpisodes));
     } catch (err) {
       console.error(err);
       alert("Greška prilikom brisanja epizode.");
@@ -46,7 +66,7 @@ function PodcastDetailsPage() {
   };
 
   const handlePlayEpisode = (episode) => {
-    const token = localStorage.getItem("access_token");
+    const token = sessionStorage.getItem("access_token");
     if (!token) {
       alert("Morate biti ulogovani da biste slušali epizodu.");
       return;
@@ -64,41 +84,54 @@ function PodcastDetailsPage() {
     <div className="podcast-details-page">
       <Breadcrumbs paths={paths} />
 
-      <h1>{podcast?.title}</h1>
-      <p><strong>Autor:</strong> {podcast?.author || 'Nepoznat'}</p>
-      <p>{podcast?.description}</p>
+      {loading && <p>Učitavanje podataka...</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      {canManage && (
-        <div style={{ margin: '20px 0' }}>
-          <Button onClick={() => setShowForm(!showForm)}>
-            {showForm ? 'Zatvori formu' : 'Dodaj epizodu'}
-          </Button>
-          {showForm && (
-            <AddEpisodeForm
-              podcastId={id}
-              setEpisodes={setEpisodes}
-              onClose={() => setShowForm(false)}
-            />
+      {!loading && !error && podcast && (
+        <>
+          <h1>{podcast.title}</h1>
+          <p><strong>Autor:</strong> {podcast.author || 'Nepoznat'}</p>
+          <p>{podcast.description}</p>
+
+          {canManage && (
+            <div style={{ margin: '20px 0' }}>
+              <Button onClick={() => setShowForm(!showForm)}>
+                {showForm ? 'Zatvori formu' : 'Dodaj epizodu'}
+              </Button>
+              {showForm && (
+                <AddEpisodeForm
+                  podcastId={id}
+                  setEpisodes={(newEpisodes) => {
+                    setEpisodes(newEpisodes);
+                    sessionStorage.setItem(`podcast_${id}_episodes`, JSON.stringify(newEpisodes));
+                  }}
+                  onClose={() => setShowForm(false)}
+                />
+              )}
+            </div>
           )}
-        </div>
-      )}
 
-      <div className="episodes-list">
-        <h2>Epizode:</h2>
-        {episodes.length > 0 ? (
-          episodes.map(ep => (
-            <EpisodeCard
-              key={ep.id}
-              episode={ep}
-              canManage={canManage}
-              onDelete={() => handleDeleteEpisode(ep.id)}
-              setEpisodes={setEpisodes}
-            />
-          ))
-        ) : (
-          <p>Ovaj podkast nema epizoda.</p>
-        )}
-      </div>
+          <div className="episodes-list">
+            <h2>Epizode:</h2>
+            {episodes.length > 0 ? (
+              episodes.map(ep => (
+                <EpisodeCard
+                  key={ep.id}
+                  episode={ep}
+                  canManage={canManage}
+                  onDelete={() => handleDeleteEpisode(ep.id)}
+                  setEpisodes={(updated) => {
+                    setEpisodes(updated);
+                    sessionStorage.setItem(`podcast_${id}_episodes`, JSON.stringify(updated));
+                  }}
+                />
+              ))
+            ) : (
+              <p>Ovaj podkast nema epizoda.</p>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }

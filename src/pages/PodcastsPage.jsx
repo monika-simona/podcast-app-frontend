@@ -6,14 +6,14 @@ import useFilters from '../hooks/useFilters';
 
 function PodcastsPage() {
   const navigate = useNavigate();
-
   const { filters, setFilter, clearFilters } = useFilters({ query: '', filterBy: 'title' });
   const { data: podcasts, loading, currentPage, totalPages, goToPage, fetchPage } =
     usePagination('/podcasts', 1, 5);
 
   const handleSearch = () => {
-    // mapiranje filtera prema izboru korisnika
-    const searchParam = filters.filterBy === 'title' ? { title: filters.query } : { user_name: filters.query };
+    const searchParam = filters.filterBy === 'title'
+      ? { title: filters.query }
+      : { user_name: filters.query };
     fetchPage(1, searchParam);
   };
 
@@ -57,9 +57,9 @@ function PodcastsPage() {
       )}
 
       <div className="pagination">
-        <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>Prethodna</button>
+        <button onClick={() => goToPage(currentPage - 1, filters)} disabled={currentPage === 1}>Prethodna</button>
         <span>Strana {currentPage} od {totalPages}</span>
-        <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages}>Sledeća</button>
+        <button onClick={() => goToPage(currentPage + 1, filters)} disabled={currentPage === totalPages}>Sledeća</button>
       </div>
     </div>
   );

@@ -12,22 +12,44 @@ function usePagination(endpoint, initialPage = 1, itemsPerPage = 5) {
     setLoading(true);
     setError(null);
 
+    const cacheKey = `${endpoint}_page_${page}_filter_${JSON.stringify(params)}`;
+    const cached = sessionStorage.getItem(cacheKey);
+
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        setData(parsed.data);
+        setTotalPages(parsed.totalPages);
+        setCurrentPage(page);
+        setLoading(false);
+        return;
+      } catch (e) {
+        console.warn("Cache parse error, fetching from API");
+      }
+    }
+
     try {
       const response = await api.get(endpoint, {
         params: { ...params, page, per_page: itemsPerPage },
       });
 
-      // Laravel paginate response
+      let responseData, lastPage;
       if (response.data.data) {
-        setData(response.data.data);
-        setTotalPages(response.data.last_page || 1);
+        responseData = response.data.data;
+        lastPage = response.data.last_page || 1;
       } else {
-        // Ako nije paginate, nego obican array
-        setData(response.data);
-        setTotalPages(1);
+        responseData = response.data;
+        lastPage = 1;
       }
 
+      setData(responseData);
+      setTotalPages(lastPage);
       setCurrentPage(page);
+
+      sessionStorage.setItem(cacheKey, JSON.stringify({
+        data: responseData,
+        totalPages: lastPage
+      }));
     } catch (err) {
       console.error("Greška u usePagination:", err);
       setError(err);
@@ -38,11 +60,11 @@ function usePagination(endpoint, initialPage = 1, itemsPerPage = 5) {
 
   useEffect(() => {
     fetchPage(initialPage);
-  }, [endpoint]); // ako endpoint promeni, da se refetchuje
+  }, [endpoint]);
 
-  const goToPage = (page) => {
+  const goToPage = (page, params = {}) => {
     if (page >= 1 && page <= totalPages) {
-      fetchPage(page);
+      fetchPage(page, params);
     }
   };
 
