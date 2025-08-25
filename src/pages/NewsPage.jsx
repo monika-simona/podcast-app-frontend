@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import api from "../api";
 
 function NewsPage() {
-  const [query, setQuery] = useState("technology");
-  const [category, setCategory] = useState("technology");
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState("");
   const [articles, setArticles] = useState([]);
   const [relatedEpisodes, setRelatedEpisodes] = useState([]);
   const [loading, setLoading] = useState(false);

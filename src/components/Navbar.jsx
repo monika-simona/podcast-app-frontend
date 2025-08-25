@@ -41,7 +41,10 @@ function Navbar() {
             </div>
             {menuOpen && (
               <div className="dropdown">
-                <Link to="/profile">Moj profil</Link>
+                <Link to="/profile" onClick={(e) => {
+                  e.preventDefault();
+                  window.location.href = "/profile";
+                }}>Moj profil</Link>
 
                 {/* Ako je autor */}
                 {user.role === 'author' && (
@@ -54,6 +57,8 @@ function Navbar() {
                 {user.role === 'admin' && (
                   <>
                     <Link to="/admin/users">Upravljanje korisnicima</Link>
+                    <Link to="/statistics">Statistika</Link>
+
                   </>
                 )}
                 <button onClick={handleLogout}>Odjavi se</button>

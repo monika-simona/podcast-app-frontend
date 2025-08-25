@@ -15,6 +15,8 @@ import AdminUserPage from './pages/AdminUsersPage';
 import ITunesSearchPage from './pages/ITunesSearchPage';
 import NewsPage from './pages/NewsPage';
 import EpisodesPage from './pages/EpisodesPage';
+import HomePage from './pages/HomePage';
+import StatisticsPage from './pages/StatisticsPage';
 
 
 
@@ -26,7 +28,7 @@ function App() {
      <Navbar />
       <Routes>
         {/* Kada odemo na root '/', preusmeri na /login */}
-        <Route path="/" element={<Navigate to="/podcasts" replace />} />
+        <Route path="/" element={<Navigate to="/homepage" replace />} />
 
         {/* Login stranica */}
         <Route path="/login" element={<LoginPage />} />
@@ -50,6 +52,10 @@ function App() {
         <Route path="/news" element={<NewsPage />} />
 
         <Route path="/episodes" element={<EpisodesPage />} />
+
+        <Route path="/homepage" element={<HomePage />} />
+
+        <Route path="/statistics" element={<StatisticsPage />} />
 
 
         {/* Ruta za nepostojeće stranice */}
