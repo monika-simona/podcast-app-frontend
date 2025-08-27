@@ -47,7 +47,7 @@ function AudioPlayerPopup() {
         src={podcastCover}
         style={{
           width: "100%",
-          height: "150px",
+          height: "200px",
           objectFit: "cover",
           borderRadius: "8px",
           marginBottom: "8px",

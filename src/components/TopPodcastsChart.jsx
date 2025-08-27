@@ -30,7 +30,7 @@ function TopPodcastsChart() {
   
 
   return (
-    <div>
+    <div style={{ maxWidth: "800px", margin: "0 auto" }}>
       <Bar data={data} />
     </div>
   );
