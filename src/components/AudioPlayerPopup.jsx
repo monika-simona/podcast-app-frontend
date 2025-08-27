@@ -8,10 +8,11 @@ function AudioPlayerPopup() {
   if (!currentEpisode) return null;
 
   const startDrag = (e) => {
-    const move = (moveEvent) => setPosition({
-      x: moveEvent.clientX - 100,
-      y: moveEvent.clientY - 20
-    });
+    const move = (moveEvent) =>
+      setPosition({
+        x: moveEvent.clientX - 100,
+        y: moveEvent.clientY - 20,
+      });
 
     const up = () => {
       window.removeEventListener("mousemove", move);
@@ -21,6 +22,8 @@ function AudioPlayerPopup() {
     window.addEventListener("mousemove", move);
     window.addEventListener("mouseup", up);
   };
+
+  const podcastCover = currentEpisode.podcast?.cover_image_url;
 
   return (
     <div
@@ -32,14 +35,52 @@ function AudioPlayerPopup() {
         background: "#fff",
         padding: "10px",
         border: "1px solid #ccc",
+        borderRadius: "10px",
+        boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
         zIndex: 1000,
-        width: "250px"
+        width: "260px",
       }}
       onMouseDown={startDrag}
     >
-      <h4>{currentEpisode.title}</h4>
-      <audio controls autoPlay src={currentEpisode.audioUrl} style={{ width: "100%" }} />
-      <button onClick={stopEpisode} style={{ marginTop: "5px" }}>Zaustavi</button>
+      {/* Podcast cover */}
+      <img
+        src={podcastCover}
+        style={{
+          width: "100%",
+          height: "150px",
+          objectFit: "cover",
+          borderRadius: "8px",
+          marginBottom: "8px",
+        }}
+      />
+
+
+      <strong style={{ display: "block", marginBottom: "5px" }}>
+         {currentEpisode.title}
+      </strong>
+
+      <audio
+        controls
+        autoPlay
+        src={currentEpisode.audioUrl}
+        style={{ width: "100%" }}
+      />
+
+      <button
+        onClick={stopEpisode}
+        style={{
+          marginTop: "10px",
+          width: "100%",
+          padding: "6px",
+          background: "#594dffff",
+          color: "#fff",
+          border: "none",
+          borderRadius: "5px",
+          cursor: "pointer",
+        }}
+      >
+         Zaustavi
+      </button>
     </div>
   );
 }

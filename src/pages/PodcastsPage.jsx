@@ -8,7 +8,7 @@ function PodcastsPage() {
   const navigate = useNavigate();
   const { filters, setFilter, clearFilters } = useFilters({ query: '', filterBy: 'title' });
   const { data: podcasts, loading, currentPage, totalPages, goToPage, fetchPage } =
-    usePagination('/podcasts', 1, 5);
+    usePagination('/podcasts', 1, 6);
 
   const handleSearch = () => {
     const searchParam = filters.filterBy === 'title'

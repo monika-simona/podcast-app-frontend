@@ -5,23 +5,30 @@ import Button from './Button';
 import InputField from './InputField';
 
 function AddPodcastForm({ setPodcasts }) {
-  const { user } = useContext(AuthContext); // trenutni autor
+  const { user } = useContext(AuthContext);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [coverImage, setCoverImage] = useState(null);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      const res = await api.post('/podcasts', {
-        title,
-        description,
-        user_id: user.id // autor se automatski povezuje
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('description', description);
+      formData.append('user_id', user.id);
+      if (coverImage) formData.append('cover_image', coverImage);
+
+      const res = await api.post('/podcasts', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
 
       setPodcasts(prev => [...prev, res.data]);
       setTitle('');
       setDescription('');
+      setCoverImage(null);
       setError('');
     } catch (err) {
       console.error(err);
@@ -47,11 +54,11 @@ function AddPodcastForm({ setPodcasts }) {
         placeholder="Unesite opis podkasta"
       />
 
-      {/* Polje koje prikazuje ime autora, ali je neizmenjivo */}
-      <InputField type='hidden'
-        value={user.name}
-        onChange={() => {}}
-        placeholder=""
+      <InputField 
+        label="Cover slika"
+        type="file"
+        accept="image/*"
+        onChange={e => setCoverImage(e.target.files[0])}
       />
       
       <Button type="submit">Kreiraj podkast</Button>

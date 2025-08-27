@@ -25,7 +25,6 @@ function EpisodesPage() {
     fetchPage,
   } = usePagination("/episodes", 1, filters.per_page);
 
-  // povlači epizode kada se promeni filter ili tag
   useEffect(() => {
     const params = { ...filters };
 
@@ -49,7 +48,6 @@ function EpisodesPage() {
         </p>
       )}
 
-      {/* 🔍 Filteri */}
       <div style={{ marginBottom: "1rem" }}>
         <input
           type="text"
@@ -82,18 +80,16 @@ function EpisodesPage() {
         </button>
       </div>
 
-      {/* 🎧 Lista epizoda */}
       <div>
         {loading && <p> Učitavanje...</p>}
         {error && <p>Greška pri učitavanju epizoda</p>}
         {episodes.length > 0 ? (
-          episodes.map((ep) => <EpisodeCard key={ep.id} episode={ep} />)
+          episodes.map((ep) => <EpisodeCard key={ep.id} episode={ep} podcast={ep.podcast} />)
         ) : (
           !loading && <p>Nema epizoda</p>
         )}
       </div>
 
-      {/* ⏩ Paginacija */}
       <div style={{ marginTop: "1rem" }}>
         <button
           onClick={() => {

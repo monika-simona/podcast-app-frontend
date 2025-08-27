@@ -17,8 +17,6 @@ export const AudioPlayerProvider = ({ children }) => {
       return;
     }
 
-    
-
     setLoadingAudio(true);
 
     try {

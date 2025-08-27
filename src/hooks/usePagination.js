@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../api';
 
-function usePagination(endpoint, initialPage = 1, itemsPerPage = 5) {
+function usePagination(endpoint, initialPage = 1, itemsPerPage = 5, cacheTime = 120000) {
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [totalPages, setTotalPages] = useState(1);
@@ -18,11 +18,18 @@ function usePagination(endpoint, initialPage = 1, itemsPerPage = 5) {
     if (cached) {
       try {
         const parsed = JSON.parse(cached);
-        setData(parsed.data);
-        setTotalPages(parsed.totalPages);
-        setCurrentPage(page);
-        setLoading(false);
-        return;
+        const now = Date.now();
+
+        // Ako cache nije stariji od cacheTime (default 60s)
+        if (now - parsed.timestamp < cacheTime) {
+          setData(parsed.data);
+          setTotalPages(parsed.totalPages);
+          setCurrentPage(page);
+          setLoading(false);
+          return;
+        } else {
+          sessionStorage.removeItem(cacheKey); // obriši stari cache
+        }
       } catch (e) {
         console.warn("Cache parse error, fetching from API");
       }
@@ -33,12 +40,24 @@ function usePagination(endpoint, initialPage = 1, itemsPerPage = 5) {
         params: { ...params, page, per_page: itemsPerPage },
       });
 
-      let responseData, lastPage;
+      let responseData = [];
+      let lastPage = 1;
+
       if (response.data.data) {
-        responseData = response.data.data;
+        // Ako API vraća paginaciju sa .data
+        responseData = response.data.data.map(podcast => ({
+          ...podcast,
+          cover_image_url: podcast.cover_image || podcast.cover_image_url || null,
+        }));
         lastPage = response.data.last_page || 1;
       } else {
-        responseData = response.data;
+        // Ako API vraća plain array
+        responseData = Array.isArray(response.data)
+          ? response.data.map(podcast => ({
+              ...podcast,
+              cover_image_url: podcast.cover_image || podcast.cover_image_url || null,
+            }))
+          : [];
         lastPage = 1;
       }
 
@@ -46,10 +65,15 @@ function usePagination(endpoint, initialPage = 1, itemsPerPage = 5) {
       setTotalPages(lastPage);
       setCurrentPage(page);
 
-      sessionStorage.setItem(cacheKey, JSON.stringify({
-        data: responseData,
-        totalPages: lastPage
-      }));
+      // Sačuvaj sa timestampom
+      sessionStorage.setItem(
+        cacheKey,
+        JSON.stringify({
+          data: responseData,
+          totalPages: lastPage,
+          timestamp: Date.now(),
+        })
+      );
     } catch (err) {
       console.error("Greška u usePagination:", err);
       setError(err);
@@ -60,6 +84,7 @@ function usePagination(endpoint, initialPage = 1, itemsPerPage = 5) {
 
   useEffect(() => {
     fetchPage(initialPage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [endpoint]);
 
   const goToPage = (page, params = {}) => {

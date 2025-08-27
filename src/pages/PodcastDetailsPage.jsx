@@ -4,6 +4,7 @@ import Button from '../components/Button';
 import Breadcrumbs from '../components/Breadcrumbs';
 import EpisodeCard from '../components/EpisodeCard';
 import AddEpisodeForm from '../components/AddEpisodeForm';
+import EditEpisodeForm from '../components/EditEpisodeForm';
 import api from '../api';
 import { useAudioPlayer } from '../context/AudioPlayerContext';
 import { AuthContext } from '../context/AuthContext';
@@ -20,6 +21,9 @@ function PodcastDetailsPage() {
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
 
+  const [selectedEpisode, setSelectedEpisode] = useState(null);
+  const [showEditForm, setShowEditForm] = useState(false);
+
   const fetchPodcastDetails = async () => {
     setLoading(true);
     setError(null);
@@ -30,9 +34,7 @@ function PodcastDetailsPage() {
         api.get(`/podcasts/${id}/episodes`)
       ]);
 
-      // Ako backend vraća paginaciju
       const episodesData = episodesRes.data.data || episodesRes.data;
-
       setPodcast(podcastRes.data);
       setEpisodes(episodesData);
     } catch (err) {
@@ -62,18 +64,12 @@ function PodcastDetailsPage() {
     }
   };
 
-  const handlePlayEpisode = (episode) => {
-    const token = sessionStorage.getItem("access_token");
-    if (!token) {
-      alert("Morate biti ulogovani da biste slušali epizodu.");
-      return;
-    }
-    playEpisode(episode);
+  const handleEditEpisode = (episode) => {
+    setSelectedEpisode(episode);
+    setShowEditForm(true);
   };
 
-  const handleGoToEpisode = (episode) => {
-    navigate(`/episodes/${episode.id}`, { state: { podcast } });
-  };
+
 
   const paths = [
     { label: 'Početna', link: '/' },
@@ -92,6 +88,17 @@ function PodcastDetailsPage() {
         <>
           <h1>{podcast.title}</h1>
           <p><strong>Autor:</strong> {podcast.author || 'Nepoznat'}</p>
+          {podcast.cover_image_url && (
+            <div
+              
+            >
+            <img 
+              src={podcast.cover_image_url} 
+              alt={podcast.title} 
+              style={{ maxWidth: "200px", borderRadius: "10px" }}
+            />
+            </div>
+          )}
           <p>{podcast.description}</p>
 
           {canManage && (
@@ -117,15 +124,24 @@ function PodcastDetailsPage() {
                   key={ep.id}
                   episode={ep}
                   canManage={canManage}
+                  setEpisodes={setEpisodes}
                   onDelete={() => handleDeleteEpisode(ep.id)}
-                  onPlay={() => handlePlayEpisode(ep)}
-                  onView={() => handleGoToEpisode(ep)}
+                  onEdit={() => handleEditEpisode(ep)}
+                  podcast={podcast}
                 />
               ))
             ) : (
               <p>Ovaj podkast nema epizoda.</p>
             )}
           </div>
+
+          {showEditForm && selectedEpisode && (
+            <EditEpisodeForm
+              episode={selectedEpisode}
+              setEpisodes={setEpisodes}
+              onClose={() => setShowEditForm(false)}
+            />
+          )}
         </>
       )}
     </div>

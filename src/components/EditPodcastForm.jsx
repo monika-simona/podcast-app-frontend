@@ -7,11 +7,19 @@ function EditPodcastForm({ podcast, setPodcasts, onClose }) {
   const [title, setTitle] = useState(podcast.title);
   const [description, setDescription] = useState(podcast.description);
   const [error, setError] = useState('');
+  const [coverImage, setCoverImage] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.put(`/podcasts/${podcast.id}`, { title, description });
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('description', description);
+      if (coverImage) formData.append('cover_image', coverImage);
+
+      const res = await api.post(`/podcasts/${podcast.id}?_method=PUT`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
 
       setPodcasts(prev => prev.map(p => p.id === podcast.id ? res.data : p));
       onClose();
@@ -35,6 +43,13 @@ function EditPodcastForm({ podcast, setPodcasts, onClose }) {
         label="Opis podkasta"
         value={description}
         onChange={e => setDescription(e.target.value)}
+      />
+
+      <InputField 
+        label="Cover slika"
+        type="file"
+        accept="image/*"
+        onChange={e => setCoverImage(e.target.files[0])}
       />
 
       <Button type="submit">Sačuvaj izmene</Button>
