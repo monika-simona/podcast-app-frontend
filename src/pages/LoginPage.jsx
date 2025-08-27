@@ -27,7 +27,7 @@ function LoginPage() {
       sessionStorage.setItem('access_token', access_token);
       sessionStorage.setItem('user', JSON.stringify(user));
 
-      navigate('/podcasts');
+      navigate('/');
 
     } catch (err) {
       console.error(err.response?.data || err);

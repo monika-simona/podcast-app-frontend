@@ -23,7 +23,9 @@ function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-left">
+        <Link to="/">Homepage</Link>
         <Link to="/podcasts">Podcast</Link>
+        <Link to="/episodes">Episodes</Link>
       </div>
 
       <div className="navbar-right">
