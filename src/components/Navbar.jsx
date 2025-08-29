@@ -58,7 +58,7 @@ function Navbar() {
                 {/* Ako je admin */}
                 {user.role === 'admin' && (
                   <>
-                    <Link to="/admin/users">Upravljanje korisnicima</Link>
+                    <Link to="/admin">Admin stranica</Link>
                     <Link to="/statistics">Statistika</Link>
 
                   </>
