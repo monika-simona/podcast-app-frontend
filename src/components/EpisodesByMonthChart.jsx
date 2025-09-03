@@ -35,7 +35,6 @@ function EpisodesByMonthChart() {
 
   return (
     <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-      <h3>Aktivnost epizoda po mesecima</h3>
       <Bar data={chartData} />
     </div>
   );

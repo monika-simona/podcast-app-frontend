@@ -54,9 +54,8 @@ function AudioPlayerPopup() {
         }}
       />
 
-
       <strong style={{ display: "block", marginBottom: "5px" }}>
-         {currentEpisode.title}
+        {currentEpisode.title}
       </strong>
 
       <audio
@@ -79,7 +78,7 @@ function AudioPlayerPopup() {
           cursor: "pointer",
         }}
       >
-         Zaustavi
+        Close
       </button>
     </div>
   );

@@ -1,20 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import Button from './Button';
-import { useAudioPlayer } from '../context/AudioPlayerContext';
-import EditEpisodeForm from './EditEpisodeForm';
-import api from '../api';
+import React, { useState, useEffect } from "react";
+import { useAudioPlayer } from "../context/AudioPlayerContext";
+import EditEpisodeForm from "./EditEpisodeForm";
+import api from "../api";
+import { CiPlay1 } from "react-icons/ci";
+import { FaPlay } from "react-icons/fa";
+import { IoSendSharp } from "react-icons/io5";
+import { MdOutlineDelete } from "react-icons/md";
+import { CiEdit } from "react-icons/ci";
 
 function EpisodeCard({ episode, canManage, onDelete, setEpisodes, podcast }) {
   const { playEpisode, loadingAudio, currentEpisode } = useAudioPlayer();
   const [showEdit, setShowEdit] = useState(false);
+  const [tags, setTags] = useState([]);
+  const [newTag, setNewTag] = useState("");
+  const [expanded, setExpanded] = useState(false);
 
   const isPlaying = currentEpisode?.id === episode.id;
 
-  // --- TAGS state ---
-  const [tags, setTags] = useState([]);
-  const [newTag, setNewTag] = useState("");
-
-  // učitavanje tagova za epizodu
   useEffect(() => {
     const fetchTags = async () => {
       try {
@@ -27,7 +29,6 @@ function EpisodeCard({ episode, canManage, onDelete, setEpisodes, podcast }) {
     fetchTags();
   }, [episode.id]);
 
-  // dodavanje taga
   const handleAddTag = async () => {
     if (!newTag.trim()) return;
     try {
@@ -41,7 +42,6 @@ function EpisodeCard({ episode, canManage, onDelete, setEpisodes, podcast }) {
     }
   };
 
-  // brisanje taga
   const handleDeleteTag = async (tagId) => {
     try {
       await api.delete(`/episodes/${episode.id}/tags/${tagId}`);
@@ -51,103 +51,135 @@ function EpisodeCard({ episode, canManage, onDelete, setEpisodes, podcast }) {
     }
   };
 
+  const maxDescriptionLength = 120;
+  const isLongDescription = episode.description?.length > maxDescriptionLength;
+  const displayDescription =
+    !expanded && isLongDescription
+      ? episode.description.slice(0, maxDescriptionLength) + "..."
+      : episode.description;
+
   return (
-    <div 
-      className="episode-card" 
-      style={{ 
-        border: "1px solid #ccc", 
-        padding: "15px", 
-        marginBottom: "15px", 
-        borderRadius: "10px",
-        display: "flex",
-        alignItems: "flex-start",
-        gap: "15px"
-      }}
+    <div
+      className="card mb-3 shadow-sm"
+      style={{ width: "100%", maxWidth: "1000px" }}
     >
+      <div className="card-body d-flex">
+        {/* Leva kolona: opis i info */}
+        <div style={{ flex: 1, paddingRight: "10px" }}>
+          <h5 className="card-title">{episode.title}</h5>
+          <p className="card-text mb-1">
+            {displayDescription}{" "}
+            {isLongDescription && (
+              <span
+                style={{ color: '#4336d6', cursor: "pointer" }}
+                onClick={() => setExpanded(!expanded)}
+              >
+                {expanded ? "Collapse" : "Read more"}
+              </span>
+            )}
+          </p>
+          <p className="mb-1">
+            <strong>Trajanje:</strong> {episode.duration} min
+          </p>
+          <p className="mb-2">
+            <strong>Datum:</strong> {episode.release_date}
+          </p>
 
-
-      <div style={{ flex: 1 }}>
-        <h4>{episode.title}</h4>
-        <p>{episode.description}</p>
-        <p><strong>Trajanje:</strong> {episode.duration} min</p>
-        <p><strong>Datum:</strong> {episode.release_date}</p>
-
-        <Button onClick={() => playEpisode({...episode, podcast: {cover_image_url: podcast?.cover_image_url,}})}>
-          {loadingAudio && !isPlaying 
-            ? "Učitavanje..." 
-            : isPlaying 
-              ? "▶ Trenutno svira" 
-              : "► Pusti"}
-        </Button>
-
-        {/* TAGOVI */}
-        <div style={{ marginTop: "10px" }}>
-          <strong>Tagovi:</strong>{" "}
-          {tags.length > 0 ? (
-            tags.map((tag) => (
+          {/* TAGOVI */}
+          <div className="mb-2">
+            {tags.map((tag) => (
               <span
                 key={tag.id}
-                style={{
-                  display: "inline-block",
-                  background: "#f0f0f0",
-                  borderRadius: "8px",
-                  padding: "3px 8px",
-                  margin: "3px",
-                }}
+                className="badge bg-light text-dark me-2"
+                style={{ fontSize: "0.8rem" }}
               >
                 #{tag.name}
                 {canManage && (
                   <button
-                    style={{ 
-                      marginLeft: "5px", 
-                      color: "red", 
-                      border: "none", 
-                      background: "transparent", 
-                      cursor: "pointer" 
-                    }}
+                    className="btn btn-sm text-danger p-0 ms-1"
                     onClick={() => handleDeleteTag(tag.id)}
                   >
                     ✖
                   </button>
                 )}
               </span>
-            ))
-          ) : (
-            <span>Nema tagova</span>
+            ))}
+          </div>
+
+          {/* Dodavanje taga */}
+          {canManage && (
+            <div className="d-flex align-items-center mb-2">
+              <input
+                type="text"
+                value={newTag}
+                placeholder="Dodaj tag..."
+                onChange={(e) => setNewTag(e.target.value)}
+                className="form-control me-2"
+                style={{ maxWidth: "150px", fontSize: "0.85rem" }}
+              />
+              <button
+                className="btn d-flex align-items-center justify-content-center"
+                onClick={handleAddTag}
+                style={{ width: "36px", height: "36px", padding: 0 }}
+              >
+                <IoSendSharp />
+              </button>
+            </div>
           )}
         </div>
 
-        {/* Dodavanje taga */}
-        {canManage && (
-          <div style={{ marginTop: "10px" }}>
-            <input
-              type="text"
-              value={newTag}
-              placeholder="Dodaj tag..."
-              onChange={(e) => setNewTag(e.target.value)}
-              style={{ marginRight: "5px" }}
-            />
-            <Button onClick={handleAddTag}>Dodaj</Button>
-          </div>
-        )}
+        {/* Desna kolona: dugmad */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+            alignItems: "center",
+          }}
+        >
+          <button
+            className="btn btn-primary d-flex align-items-center justify-content-center"
+            style={{ width: "48px", height: "48px", borderRadius: "50%" }}
+            onClick={() =>
+              playEpisode({
+                ...episode,
+                podcast: { cover_image_url: podcast?.cover_image_url },
+              })
+            }
+            disabled={loadingAudio && !isPlaying}
+          >
+            {loadingAudio && !isPlaying ? (
+              <div className="spinner-border spinner-border-sm text-light" />
+            ) : isPlaying ? (
+              <FaPlay size={20} />
+            ) : (
+              <CiPlay1 size={22} />
+            )}
+          </button>
 
-        {/* Dugmići za uređivanje epizode */}
-        {canManage && (
-          <div style={{ marginTop: "10px" }}>
-            <Button onClick={() => setShowEdit(true)}>Edit</Button>
-            <Button onClick={onDelete}>Delete</Button>
-          </div>
-        )}
-
-        {/* Forma za edit epizode */}
-        {showEdit && (
-          <EditEpisodeForm
-            episode={episode}
-            setEpisodes={setEpisodes}
-            onClose={() => setShowEdit(false)}
-          />
-        )}
+          {canManage && (
+            <div className="d-flex gap-2">
+              <button
+                className="btn p-1"
+                onClick={() => setShowEdit(true)}
+              >
+                <CiEdit size={18} />
+              </button>
+              <button className="btn p-1" onClick={onDelete}>
+                <MdOutlineDelete size={18} />
+              </button>
+            </div>
+          )}
+        </div>
       </div>
+
+      {showEdit && (
+        <EditEpisodeForm
+          episode={episode}
+          setEpisodes={setEpisodes}
+          onClose={() => setShowEdit(false)}
+        />
+      )}
     </div>
   );
 }

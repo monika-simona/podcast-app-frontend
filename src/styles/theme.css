@@ -1,0 +1,55 @@
+/* src/styles/theme.css */
+
+/* 🎨 Paleta */
+:root {
+  --color-primary: #5a4dff;
+  --color-primary-dark: #4f44cc;
+  --color-accent: #7b2bca;
+  --color-bg: #f9f9fb;
+  --color-text: #222;
+
+  --radius: 10px;
+  --shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Globalni stil */
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: "Inter", sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Dugmad */
+.btn-primary {
+  background-color: var(--color-primary);
+  border: none;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-dark);
+}
+
+/* Kartice */
+.card {
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+/* Audio player */
+.audio-player {
+  background: white;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 10px;
+}
+
+

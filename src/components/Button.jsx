@@ -1,13 +1,9 @@
-import React from 'react';
+import React from "react";
 
 // Dugme
-function Button({ children, onClick, type = 'button', className = '' }) {
+function Button({ children, onClick, type = "button", className = "" }) {
   return (
-    <button
-      type={type}
-      onClick={onClick}
-      className={`custom-button ${className}`}
-    >
+    <button type={type} onClick={onClick} className="btn btn-primary">
       {children}
     </button>
   );

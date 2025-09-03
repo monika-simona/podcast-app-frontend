@@ -4,6 +4,7 @@ import Button from '../components/Button';
 import {useState} from 'react';
 import api from '../api';
 import { useNavigate } from 'react-router-dom';
+import Layout from "../components/Layout";
 
 
 
@@ -35,26 +36,26 @@ function LoginPage() {
   };
 
   return (
-    <div className='login-page'>
-      <h1>Login</h1>
-      <InputField
-        label="Email"
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Unesite email"
-      />
-      <InputField
-        label="Password"
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Unesite lozinku"
-      />
-      <Button onClick={handleLogin}>Prijavi se</Button>
-
-
-    </div>
+    <Layout>
+      <div className="login-page">
+        <h1>Login</h1>
+        <InputField
+          label="Email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Unesite email"
+        />
+        <InputField
+          label="Password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Unesite lozinku"
+        />
+        <Button onClick={handleLogin}>Prijavi se</Button>
+      </div>
+    </Layout>
   );
 }
 

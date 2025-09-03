@@ -15,34 +15,34 @@ function EpisodeCardMini({ episode }) {
   };
 
   return (
-    <div 
+    <div
       onClick={handleClick}
       style={{
-        width: "140px",
+        width: "120px",
         cursor: "pointer",
         textAlign: "center",
-        margin: "10px"
+        margin: "5px",
       }}
     >
-      <img 
-        src={episode.podcast?.cover_image_url || "/default-cover.png"} 
-        alt={episode.title} 
-        style={{ 
-          width: "100%", 
+      <img
+        src={episode.podcast?.cover_image_url || "/default-cover.png"}
+        alt={episode.title}
+        style={{
+          width: "120px",
           height: "120px",
           objectFit: "cover",
-          borderRadius: "10px",
-          boxShadow: "0 2px 6px rgba(0,0,0,0.15)"
-        }} 
+          borderRadius: "8px",
+          boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+        }}
       />
-      <div 
-        style={{ 
-          marginTop: "6px", 
-          fontSize: "14px", 
-          fontWeight: "500", 
+      <div
+        style={{
+          marginTop: "6px",
+          fontSize: "14px",
+          fontWeight: "500",
           overflow: "hidden",
           textOverflow: "ellipsis",
-          whiteSpace: "nowrap"
+          whiteSpace: "nowrap",
         }}
       >
         {episode.title}

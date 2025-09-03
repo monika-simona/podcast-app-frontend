@@ -5,20 +5,20 @@ function PodcastCardMini({ podcast, onClick }) {
     <div 
       onClick={() => onClick?.(podcast.id)}
       style={{
-        width: "140px",
+        width: "120px",
         cursor: "pointer",
         textAlign: "center",
-        margin: "8px"
+        margin: "5px"
       }}
     >
       <img 
         src={podcast.cover_image_url || "/default-cover.png"} 
         alt={podcast.title} 
         style={{ 
-          width: "100%", 
+          width: "120px", 
           height: "120px",
           objectFit: "cover",
-          borderRadius: "10px",
+          borderRadius: "8px",
           boxShadow: "0 2px 6px rgba(0,0,0,0.15)"
         }} 
       />
