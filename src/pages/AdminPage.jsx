@@ -7,9 +7,11 @@ import Layout from "../components/Layout";
 import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
 import Button from "../components/Button";
 import { MdReadMore, MdDelete } from "react-icons/md";
+import AddUserForm from "../components/AddUserForm";
 
 function AdminPage() {
   const [activeTab, setActiveTab] = useState("users");
+  const [showAddUserForm, setShowAddUserForm] = useState(false);
   const navigate = useNavigate();
 
   // USERS HOOKOVI
@@ -209,6 +211,10 @@ function AdminPage() {
               >
                 Resetuj
               </Button>
+              {/* DODAJ KORISNIKA */}
+              <Button onClick={() => setShowAddUserForm(true)}>
+                Dodaj korisnika
+              </Button>
             </div>
 
             {loadingUsers ? (
@@ -238,24 +244,22 @@ function AdminPage() {
                           <td>{u.email}</td>
                           <td>{u.role}</td>
                           <td>
-                            <td>
-                              <button
-                                onClick={() => handleDeleteUser(u.id)}
-                                style={{
-                                  border: "none",
-                                  background: "transparent",
-                                  cursor: "pointer",
-                                  width: "30px",
-                                  height: "30px",
-                                  borderRadius: "50%",
-                                  display: "flex",
-                                  justifyContent: "center",
-                                  alignItems: "center",
-                                }}
-                              >
-                                <MdDelete color="#4338d6ff" size={20} />
-                              </button>
-                            </td>
+                            <button
+                              onClick={() => handleDeleteUser(u.id)}
+                              style={{
+                                border: "none",
+                                background: "transparent",
+                                cursor: "pointer",
+                                width: "30px",
+                                height: "30px",
+                                borderRadius: "50%",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                              }}
+                            >
+                              <MdDelete color="#4338d6ff" size={20} />
+                            </button>
                           </td>
                         </tr>
                       ))
@@ -275,6 +279,18 @@ function AdminPage() {
                   setUserFilter
                 )}
               </>
+            )}
+
+            {showAddUserForm && (
+              <AddUserForm
+                onClose={() => setShowAddUserForm(false)}
+                onUserAdded={() =>
+                  fetchUsers(
+                    1,
+                    userFilters.query ? { user_name: userFilters.query } : {}
+                  )
+                }
+              />
             )}
           </div>
         )}
