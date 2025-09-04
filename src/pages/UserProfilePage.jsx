@@ -79,9 +79,10 @@ function UserProfilePage() {
           maxWidth: "500px",
           margin: "20px auto",
           padding: "20px",
-          border: "1px solid #ddd",
+          border: "1px solid #c8c4c4ff",
           borderRadius: "8px",
           boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+          
         }}
       >
         <h2 style={{ marginBottom: "20px", textAlign: "center" }}>

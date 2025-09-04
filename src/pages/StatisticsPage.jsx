@@ -8,7 +8,14 @@ import Layout from "../components/Layout";
 function StatisticsPage() {
   return (
     <Layout>
-      <div style={{ maxWidth: "1000px", margin: "0 auto", padding: "20px" }}>
+      <div
+        style={{
+          maxWidth: "1000px",
+          margin: "0 auto",
+          padding: "20px",
+          background: "#e3e3e3ff",
+        }}
+      >
         <h1 style={{ textAlign: "center", marginBottom: "30px" }}>
           Statistika
         </h1>
