@@ -67,6 +67,9 @@ function Navbar() {
                   {user.role === "admin" && (
                     <>
                       <li>
+                        <Link to="/my-podcasts">Moji podkasti</Link>
+                      </li>
+                      <li>
                         <Link to="/admin">Admin stranica</Link>
                       </li>
                       <li>
