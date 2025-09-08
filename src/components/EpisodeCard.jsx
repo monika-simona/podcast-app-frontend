@@ -17,11 +17,13 @@ function EpisodeCard({ episode, canManage, onDelete, setEpisodes, podcast }) {
 
   const isPlaying = currentEpisode?.id === episode.id;
 
+  // Učitavanje tagova
   useEffect(() => {
     const fetchTags = async () => {
       try {
         const res = await api.get(`/episodes/${episode.id}/tags`);
-        setTags(res.data);
+        // Laravel Resource vraća objekat { data: [...] }
+        setTags(res.data.data || []);
       } catch (err) {
         console.error("Greška pri učitavanju tagova:", err);
       }
@@ -35,7 +37,7 @@ function EpisodeCard({ episode, canManage, onDelete, setEpisodes, podcast }) {
       const res = await api.post(`/episodes/${episode.id}/tags`, {
         tags: [newTag.trim()],
       });
-      setTags(res.data.tags);
+      setTags(res.data.data || []); // Laravel Resource format
       setNewTag("");
     } catch (err) {
       console.error("Greška pri dodavanju taga:", err);
@@ -64,14 +66,13 @@ function EpisodeCard({ episode, canManage, onDelete, setEpisodes, podcast }) {
       style={{ width: "100%", maxWidth: "1000px" }}
     >
       <div className="card-body d-flex">
-        {/* Leva kolona: opis i info */}
         <div style={{ flex: 1, paddingRight: "10px" }}>
           <h5 className="card-title">{episode.title}</h5>
           <p className="card-text mb-1">
             {displayDescription}{" "}
             {isLongDescription && (
               <span
-                style={{ color: '#4336d6', cursor: "pointer" }}
+                style={{ color: "#4336d6", cursor: "pointer" }}
                 onClick={() => setExpanded(!expanded)}
               >
                 {expanded ? "Collapse" : "Read more"}
@@ -87,23 +88,24 @@ function EpisodeCard({ episode, canManage, onDelete, setEpisodes, podcast }) {
 
           {/* TAGOVI */}
           <div className="mb-2">
-            {tags.map((tag) => (
-              <span
-                key={tag.id}
-                className="badge bg-light text-dark me-2"
-                style={{ fontSize: "0.8rem" }}
-              >
-                #{tag.name}
-                {canManage && (
-                  <button
-                    className="btn btn-sm text-danger p-0 ms-1"
-                    onClick={() => handleDeleteTag(tag.id)}
-                  >
-                    ✖
-                  </button>
-                )}
-              </span>
-            ))}
+            {Array.isArray(tags) &&
+              tags.map((tag) => (
+                <span
+                  key={tag.id}
+                  className="badge bg-light text-dark me-2"
+                  style={{ fontSize: "0.8rem" }}
+                >
+                  #{tag.name}
+                  {canManage && (
+                    <button
+                      className="btn btn-sm text-danger p-0 ms-1"
+                      onClick={() => handleDeleteTag(tag.id)}
+                    >
+                      ✖
+                    </button>
+                  )}
+                </span>
+              ))}
           </div>
 
           {/* Dodavanje taga */}
@@ -159,10 +161,7 @@ function EpisodeCard({ episode, canManage, onDelete, setEpisodes, podcast }) {
 
           {canManage && (
             <div className="d-flex gap-2">
-              <button
-                className="btn p-1"
-                onClick={() => setShowEdit(true)}
-              >
+              <button className="btn p-1" onClick={() => setShowEdit(true)}>
                 <CiEdit size={18} />
               </button>
               <button className="btn p-1" onClick={onDelete}>

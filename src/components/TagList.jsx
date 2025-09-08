@@ -9,7 +9,7 @@ function TagList({ onTagClick }) {
     const fetchTags = async () => {
       try {
         const res = await api.get("/tags");
-        setTags(res.data);
+        setTags(res.data.data);
       } catch (err) {
         console.error("Greška pri učitavanju svih tagova:", err);
       }

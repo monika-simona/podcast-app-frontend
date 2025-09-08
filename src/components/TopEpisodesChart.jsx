@@ -20,7 +20,7 @@ function TopEpisodesChart() {
     const fetchData = async () => {
       try {
         const res = await api.get("/top-episodes?limit=10");
-        setEpisodes(res.data);
+        setEpisodes(res.data.data);
       } catch (err) {
         console.error(err);
       }

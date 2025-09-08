@@ -20,7 +20,7 @@ function MyPodcastsPage() {
     const fetchPodcasts = async () => {
       try {
         const res = await api.get("my-podcasts");
-        setPodcasts(res.data);
+        setPodcasts(res.data.data);
       } catch (err) {
         console.error(err);
       } finally {

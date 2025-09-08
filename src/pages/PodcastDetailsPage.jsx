@@ -36,7 +36,7 @@ function PodcastDetailsPage() {
       ]);
 
       const episodesData = episodesRes.data.data || episodesRes.data;
-      setPodcast(podcastRes.data);
+      setPodcast(podcastRes.data.data);
       setEpisodes(episodesData);
     } catch (err) {
       console.error("Greška pri učitavanju podataka:", err);
