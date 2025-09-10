@@ -25,7 +25,7 @@ function EditEpisodeForm({ episode, setEpisodes, onClose }) {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setEpisodes((prev) =>
-        prev.map((ep) => (ep.id === episode.id ? res.data : ep))
+        prev.map((ep) => (ep.id === episode.id ? res.data.data : ep))
       );
       onClose();
     } catch (err) {

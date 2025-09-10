@@ -41,7 +41,7 @@ function AddEpisodeForm({ podcastId, setEpisodes, onClose }) {
       const res = await api.post("/episodes", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      setEpisodes((prev) => [...prev, res.data]);
+      setEpisodes((prev) => [...prev, res.data.data]);
       onClose();
     } catch (err) {
       console.error(err);

@@ -29,6 +29,7 @@ function LoginPage() {
       sessionStorage.setItem('user', JSON.stringify(user));
 
       navigate('/');
+      window.location.reload();
 
     } catch (err) {
       console.error(err.response?.data || err);

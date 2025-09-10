@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import api from "../api";
 import { AuthContext } from "../context/AuthContext";
 import Layout from "../components/Layout";
@@ -7,30 +7,46 @@ import InputField from "../components/InputField";
 
 function UserProfilePage() {
   const { user, login, logout } = useContext(AuthContext);
-  const [formData, setFormData] = useState({
-    name: user?.name || "",
-    email: user?.email || "",
-    password: "",
-  });
+
+  // Lokalni state za formu, inicijalno prazan
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [editing, setEditing] = useState(false);
-  const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+
+  // Kada se učita user, popuni lokalni state
+  useEffect(() => {
+    if (user) {
+      setName(user.name);
+      setEmail(user.email);
+      setPassword("");
+    }
+  }, [user]);
 
   const handleEditClick = () => {
-    setFormData({ name: user.name, email: user.email, password: "" });
+    // inicijalizuj formu **samo kada se klikne edit**
+    if (user) {
+      setName(user.name);
+      setEmail(user.email);
+      setPassword("");
+    }
     setEditing(true);
     setMessage("");
-  };
-
-  const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setError("");
   };
 
   const handleCancel = () => {
     setEditing(false);
     setMessage("");
     setError("");
+    if (user) {
+      setName(user.name);
+      setEmail(user.email);
+      setPassword("");
+    }
   };
 
   const handleSave = async () => {
@@ -39,15 +55,17 @@ function UserProfilePage() {
     setMessage("");
     try {
       const token = sessionStorage.getItem("access_token");
-      const res = await api.put(`/users/${user.id}`, formData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      login(res.data);
+      const res = await api.put(
+        `/users/${user.id}`,
+        { name, email, password },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      login(res.data.data);
       setEditing(false);
       setMessage("Profil uspešno ažuriran!");
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || "Greška prilikom ažuriranja.");
+      setError(err.response?.data?.data?.message || "Greška prilikom ažuriranja.");
     } finally {
       setLoading(false);
     }
@@ -82,7 +100,6 @@ function UserProfilePage() {
           border: "1px solid #c8c4c4ff",
           borderRadius: "8px",
           boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-          
         }}
       >
         <h2 style={{ marginBottom: "20px", textAlign: "center" }}>
@@ -128,20 +145,20 @@ function UserProfilePage() {
             <InputField
               label="Ime"
               type="text"
-              value={formData.name}
-              onChange={handleChange}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
             <InputField
               label="Email"
               type="email"
-              value={formData.email}
-              onChange={handleChange}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
             <InputField
               label="Lozinka"
               type="password"
-              value={formData.password}
-              onChange={handleChange}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="Ostavi prazno da se ne menja"
             />
 

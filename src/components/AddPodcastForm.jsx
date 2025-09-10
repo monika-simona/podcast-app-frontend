@@ -1,11 +1,9 @@
-import React, { useState, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import React, { useState } from 'react';
 import api from '../api';
 import Button from './Button';
 import InputField from './InputField';
 
 function AddPodcastForm({ setPodcasts }) {
-  const { user } = useContext(AuthContext);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [coverImage, setCoverImage] = useState(null);
@@ -18,14 +16,13 @@ function AddPodcastForm({ setPodcasts }) {
       const formData = new FormData();
       formData.append('title', title);
       formData.append('description', description);
-      formData.append('user_id', user.id);
       if (coverImage) formData.append('cover_image', coverImage);
 
       const res = await api.post('/podcasts', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
-      setPodcasts(prev => [...prev, res.data]);
+      setPodcasts(prev => [...prev, res.data.data]);
       setTitle('');
       setDescription('');
       setCoverImage(null);

@@ -21,7 +21,7 @@ function EditPodcastForm({ podcast, setPodcasts, onClose }) {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
-      setPodcasts(prev => prev.map(p => p.id === podcast.id ? res.data : p));
+      setPodcasts(prev => prev.map(p => p.id === podcast.id ? res.data.data : p));
       onClose();
     } catch (err) {
       console.error(err);
