@@ -1,7 +1,12 @@
-import { useState, useEffect } from 'react';
-import api from '../api';
+import { useState, useEffect } from "react";
+import api from "../api";
 
-function usePagination(endpoint, initialPage = 1, itemsPerPage = 5, cacheTime = 120000) {
+function usePagination(
+  endpoint,
+  initialPage = 1,
+  itemsPerPage = 5,
+  cacheTime = 120000
+) {
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [totalPages, setTotalPages] = useState(1);
@@ -12,7 +17,9 @@ function usePagination(endpoint, initialPage = 1, itemsPerPage = 5, cacheTime = 
     setLoading(true);
     setError(null);
 
-    const cacheKey = `${endpoint}_page_${page}_filter_${JSON.stringify(params)}`;
+    const cacheKey = `${endpoint}_page_${page}_filter_${JSON.stringify(
+      params
+    )}`;
     const cached = sessionStorage.getItem(cacheKey);
 
     if (cached) {
@@ -20,7 +27,6 @@ function usePagination(endpoint, initialPage = 1, itemsPerPage = 5, cacheTime = 
         const parsed = JSON.parse(cached);
         const now = Date.now();
 
-        // Ako cache nije stariji od cacheTime (default 60s)
         if (now - parsed.timestamp < cacheTime) {
           setData(parsed.data);
           setTotalPages(parsed.totalPages);
@@ -28,7 +34,7 @@ function usePagination(endpoint, initialPage = 1, itemsPerPage = 5, cacheTime = 
           setLoading(false);
           return;
         } else {
-          sessionStorage.removeItem(cacheKey); // obriši stari cache
+          sessionStorage.removeItem(cacheKey);
         }
       } catch (e) {
         console.warn("Cache parse error, fetching from API");
@@ -42,20 +48,23 @@ function usePagination(endpoint, initialPage = 1, itemsPerPage = 5, cacheTime = 
 
       let responseData = [];
       let lastPage = 1;
+      let current = page;
 
       if (response.data.data) {
-        // Ako API vraća paginaciju sa .data
-        responseData = response.data.data.map(podcast => ({
-          ...podcast,
-          cover_image_url: podcast.cover_image || podcast.cover_image_url || null,
+        // Laravel paginate sa meta
+        responseData = response.data.data.map((item) => ({
+          ...item,
+          cover_image_url: item.cover_image || item.cover_image_url || null,
         }));
-        lastPage = response.data.last_page || 1;
+
+        lastPage = response.data.meta?.last_page || 1;
+        current = response.data.meta?.current_page || page;
       } else {
-        // Ako API vraća plain array
+        // Plain array (fallback)
         responseData = Array.isArray(response.data)
-          ? response.data.map(podcast => ({
-              ...podcast,
-              cover_image_url: podcast.cover_image || podcast.cover_image_url || null,
+          ? response.data.map((item) => ({
+              ...item,
+              cover_image_url: item.cover_image || item.cover_image_url || null,
             }))
           : [];
         lastPage = 1;
@@ -63,9 +72,8 @@ function usePagination(endpoint, initialPage = 1, itemsPerPage = 5, cacheTime = 
 
       setData(responseData);
       setTotalPages(lastPage);
-      setCurrentPage(page);
+      setCurrentPage(current);
 
-      // Sačuvaj sa timestampom
       sessionStorage.setItem(
         cacheKey,
         JSON.stringify({

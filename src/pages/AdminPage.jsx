@@ -55,7 +55,7 @@ function AdminPage() {
       });
       fetchUsers(
         userPage,
-        userFilters.query ? { user_name: userFilters.query } : {}
+        userFilters.query ? { name: userFilters.query } : {}
       );
     } catch (err) {
       alert("Greška pri brisanju korisnika.");
@@ -199,7 +199,7 @@ function AdminPage() {
                 onChange={(e) => setUserFilter("query", e.target.value)}
               />
               <Button
-                onClick={() => fetchUsers(1, { user_name: userFilters.query })}
+                onClick={() => fetchUsers(1, { name: userFilters.query })}
               >
                 Pretraži
               </Button>
@@ -287,7 +287,7 @@ function AdminPage() {
                 onUserAdded={() =>
                   fetchUsers(
                     1,
-                    userFilters.query ? { user_name: userFilters.query } : {}
+                    userFilters.query ? { name: userFilters.query } : {}
                   )
                 }
               />
