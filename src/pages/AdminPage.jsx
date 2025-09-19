@@ -6,13 +6,22 @@ import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
 import Button from "../components/Button";
-import { MdReadMore, MdDelete } from "react-icons/md";
+import {
+  MdEdit,
+  MdOutlineArrowForwardIos,
+  MdReadMore,
+  MdDelete,
+} from "react-icons/md";
 import AddUserForm from "../components/AddUserForm";
 
 function AdminPage() {
   const [activeTab, setActiveTab] = useState("users");
   const [showAddUserForm, setShowAddUserForm] = useState(false);
   const navigate = useNavigate();
+
+  // STATE ZA EDITOVANJE PODCASTA
+  const [editingPodcasts, setEditingPodcasts] = useState({});
+  const [podcastEdits, setPodcastEdits] = useState({});
 
   // USERS HOOKOVI
   const {
@@ -48,16 +57,19 @@ function AdminPage() {
   const handleDeleteUser = async (id) => {
     if (!window.confirm("Da li sigurno želiš da obrišeš ovog korisnika?"))
       return;
+
     try {
       const token = sessionStorage.getItem("access_token");
-      await api.delete(`users/${id}`, {
+      await api.delete(`/users/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      fetchUsers(
-        userPage,
-        userFilters.query ? { name: userFilters.query } : {}
-      );
+      fetchUsers(1, userFilters.query ? { name: userFilters.query } : {});
+      alert("Korisnik uspešno obrisan.");
     } catch (err) {
+      console.error(
+        "Greška pri brisanju korisnika:",
+        err.response?.data || err
+      );
       alert("Greška pri brisanju korisnika.");
     }
   };
@@ -76,24 +88,6 @@ function AdminPage() {
       );
     } catch (err) {
       alert("Greška pri brisanju podkasta.");
-    }
-  };
-
-  // EDIT PODCAST
-  const handleEditPodcast = async (id, newTitle, newDescription) => {
-    try {
-      const token = sessionStorage.getItem("access_token");
-      await api.put(
-        `podcasts/${id}`,
-        { title: newTitle, description: newDescription },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      fetchPodcasts(
-        podcastPage,
-        podcastFilters.query ? { title: podcastFilters.query } : {}
-      );
-    } catch (err) {
-      alert("Greška pri izmeni podkasta.");
     }
   };
 
@@ -211,7 +205,6 @@ function AdminPage() {
               >
                 Resetuj
               </Button>
-              {/* DODAJ KORISNIKA */}
               <Button onClick={() => setShowAddUserForm(true)}>
                 Dodaj korisnika
               </Button>
@@ -350,67 +343,146 @@ function AdminPage() {
                   </thead>
                   <tbody>
                     {podcasts.length > 0 ? (
-                      podcasts.map((p) => (
-                        <tr key={p.id}>
-                          <td>{p.id}</td>
-                          <td>
-                            <input
-                              type="text"
-                              defaultValue={p.title}
-                              onBlur={(e) =>
-                                handleEditPodcast(
-                                  p.id,
-                                  e.target.value,
-                                  p.description
-                                )
-                              }
-                            />
-                          </td>
-                          <td>
-                            <textarea
-                              defaultValue={p.description}
-                              onBlur={(e) =>
-                                handleEditPodcast(p.id, p.title, e.target.value)
-                              }
-                            />
-                          </td>
-                          <td>{p.author || "N/A"}</td>
-                          <td>
-                            <button
-                              onClick={() => handleDeletePodcast(p.id)}
-                              style={{
-                                border: "none",
-                                background: "transparent",
-                                cursor: "pointer",
-                                width: "30px",
-                                height: "30px",
-                                borderRadius: "50%",
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                              }}
-                            >
-                              <MdDelete color="#4338d6ff" size={20} />
-                            </button>
-                            <button
-                              onClick={() => navigate(`/podcasts/${p.id}`)}
-                              style={{
-                                border: "none",
-                                background: "transparent",
-                                cursor: "pointer",
-                                width: "30px",
-                                height: "30px",
-                                borderRadius: "50%",
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                              }}
-                            >
-                              <MdReadMore color="#3d2ffeff" size={20} />
-                            </button>
-                          </td>
-                        </tr>
-                      ))
+                      podcasts.map((p) => {
+                        const isEditing = editingPodcasts[p.id] || false;
+                        const editedTitle =
+                          podcastEdits[p.id]?.title ?? p.title;
+                        const editedDescription =
+                          podcastEdits[p.id]?.description ?? p.description;
+
+                        const handleEditClick = () => {
+                          setEditingPodcasts((prev) => ({
+                            ...prev,
+                            [p.id]: true,
+                          }));
+                          setPodcastEdits((prev) => ({
+                            ...prev,
+                            [p.id]: {
+                              title: p.title,
+                              description: p.description,
+                            },
+                          }));
+                        };
+
+                        const handleSaveClick = async () => {
+                          try {
+                            const token =
+                              sessionStorage.getItem("access_token");
+                            await api.post(
+                              `podcasts/${p.id}?_method=PUT`,
+                              {
+                                title: editedTitle,
+                                description: editedDescription,
+                              },
+                              { headers: { Authorization: `Bearer ${token}` } }
+                            );
+                            setEditingPodcasts((prev) => ({
+                              ...prev,
+                              [p.id]: false,
+                            }));
+                            fetchPodcasts(
+                              podcastPage,
+                              podcastFilters.query
+                                ? { title: podcastFilters.query }
+                                : {}
+                            );
+                          } catch (err) {
+                            alert("Greška pri čuvanju podkasta.");
+                          }
+                        };
+
+                        return (
+                          <tr key={p.id}>
+                            <td>{p.id}</td>
+                            <td>
+                              {isEditing ? (
+                                <input
+                                  type="text"
+                                  value={editedTitle}
+                                  onChange={(e) =>
+                                    setPodcastEdits((prev) => ({
+                                      ...prev,
+                                      [p.id]: {
+                                        ...prev[p.id],
+                                        title: e.target.value,
+                                      },
+                                    }))
+                                  }
+                                />
+                              ) : (
+                                p.title
+                              )}
+                            </td>
+                            <td>
+                              {isEditing ? (
+                                <textarea
+                                  value={editedDescription}
+                                  onChange={(e) =>
+                                    setPodcastEdits((prev) => ({
+                                      ...prev,
+                                      [p.id]: {
+                                        ...prev[p.id],
+                                        description: e.target.value,
+                                      },
+                                    }))
+                                  }
+                                />
+                              ) : (
+                                p.description
+                              )}
+                            </td>
+                            <td>{p.author || "N/A"}</td>
+                            <td style={{ display: "flex", gap: "5px" }}>
+                              {isEditing ? (
+                                <button
+                                  onClick={handleSaveClick}
+                                  style={{
+                                    border: "none",
+                                    background: "transparent",
+                                    cursor: "pointer",
+                                  }}
+                                >
+                                  <MdOutlineArrowForwardIos
+                                    color="#4338d6ff"
+                                    size={20}
+                                  />
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={handleEditClick}
+                                  style={{
+                                    border: "none",
+                                    background: "transparent",
+                                    cursor: "pointer",
+                                  }}
+                                >
+                                  <MdEdit color="#4338d6ff" size={20} />
+                                </button>
+                              )}
+                              <button
+                                onClick={() => handleDeletePodcast(p.id)}
+                                style={{
+                                  border: "none",
+                                  background: "transparent",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                <MdDelete color="#4338d6ff" size={20} />
+                              </button>
+                              <button
+                                onClick={() => navigate(`/podcasts/${p.id}`)}
+                                style={{
+                                  border: "none",
+                                  background: "transparent",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                <MdReadMore color="#3d2ffeff" size={20} />
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })
                     ) : (
                       <tr>
                         <td colSpan="5">Nema podkasta</td>

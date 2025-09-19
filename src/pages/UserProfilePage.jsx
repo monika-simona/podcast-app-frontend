@@ -75,7 +75,7 @@ function UserProfilePage() {
     if (window.confirm("Da li si siguran/na da želiš da obrišeš nalog?")) {
       try {
         const token = sessionStorage.getItem("access_token");
-        await api.delete(`/user`, {
+        await api.delete(`/users/${user.id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         alert("Nalog obrisan.");
